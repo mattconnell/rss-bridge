@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 class WKYTNewsBridge extends BridgeAbstract
 {
     const NAME = 'WKYT Lexington News';
@@ -7,7 +9,7 @@ class WKYTNewsBridge extends BridgeAbstract
     const DESCRIPTION = 'Returns the recent articles published on WKYT News (Lexington KY)';
     const MAINTAINER = 'mattconnell';
 
-    public function collectData()
+    final public function collectData(): void
     {
         $html = getSimpleHTMLDOM(self::URI);
         $html = defaultLinkTo($html, self::URI);
@@ -17,11 +19,13 @@ class WKYTNewsBridge extends BridgeAbstract
         foreach ($articles as $article) {
             $item = [];
             $url = $article->find('.headline a', 0);
-            $item['uri'] = $url->href;
-            $item['title'] = trim($url->plaintext);
-            $item['author'] = $article->find('.author', 0)->plaintext;
-            $item['content'] = $article->find('.deck', 0)->plaintext;
-            $this->items[] = $item;
+            if ($url) {
+                $item['uri'] = $url->href;
+                $item['title'] = trim($url->plaintext);
+                $item['author'] = $article->find('.author', 0)->plaintext;
+                $item['content'] = $article->find('.deck', 0)->plaintext;
+                $this->items[] = $item;
+            }
         }
     }
 }
